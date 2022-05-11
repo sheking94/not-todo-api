@@ -28,10 +28,13 @@ import logger from "../utils/logger";
 })
 export class User {
   @prop({ lowercase: true, required: true, unique: true })
-  email: string;
+  public email: string;
+
+  @prop({ lowercase: true, required: true, unique: true })
+  public username: string;
 
   @prop({ required: true })
-  password: string;
+  private password: string;
 
   async validatePassword(this: DocumentType<User>, candidatePassword: string) {
     try {
