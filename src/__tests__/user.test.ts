@@ -9,7 +9,7 @@ const app = createServer();
 
 const userId = new mongoose.Types.ObjectId().toString();
 
-export const userPayload = {
+const userPayload = {
   _id: userId,
   email: "jane.doe@example.com",
   username: "Jane Doe",
@@ -29,7 +29,7 @@ describe("user", () => {
         const createUserServiceMock = jest
           .spyOn(UserService, "createUser")
           // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockReturnValueOnce();
 
         const { statusCode } = await supertest(app)
           .post("/api/users")
@@ -45,7 +45,7 @@ describe("user", () => {
         const createUserServiceMock = jest
           .spyOn(UserService, "createUser")
           // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockReturnValueOnce();
 
         const { statusCode } = await supertest(app)
           .post("/api/users")
