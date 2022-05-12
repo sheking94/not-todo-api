@@ -39,5 +39,21 @@ describe("user", () => {
         expect(createUserServiceMock).toHaveBeenCalledWith(userInput);
       });
     });
+
+    describe("given passwords do not match", () => {
+      it("should return BAD REQUEST (400) status", async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, "createUser")
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+
+        const { statusCode } = await supertest(app)
+          .post("/api/users")
+          .send({ ...userInput, passwordConfirmation: "qweqweqwe" });
+
+        expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
+        expect(createUserServiceMock).not.toHaveBeenCalledWith();
+      });
+    });
   });
 });
