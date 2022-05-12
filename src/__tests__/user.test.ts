@@ -55,5 +55,21 @@ describe("user", () => {
         expect(createUserServiceMock).not.toHaveBeenCalledWith();
       });
     });
+
+    describe("given email or username already exist", () => {
+      it("should return CONFLICT (409) status", async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, "createUser")
+          // @ts-ignore
+          .mockRejectedValueOnce({ code: 11000 });
+
+        const { statusCode } = await supertest(app)
+          .post("/api/users")
+          .send(userInput);
+
+        expect(statusCode).toBe(StatusCodes.CONFLICT);
+        expect(createUserServiceMock).not.toHaveBeenCalledWith();
+      });
+    });
   });
 });
