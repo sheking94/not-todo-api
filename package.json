@@ -2,13 +2,20 @@
   "name": "server",
   "packageManager": "yarn@3.2.0",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts"
+    "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts",
+    "test": "jest --watchAll --detectOpenHandles"
   },
   "devDependencies": {
     "@types/config": "^0.0.41",
     "@types/express": "^4.17.13",
+    "@types/jest": "^27.5.1",
     "@types/mongoose": "^5.11.97",
+    "@types/supertest": "^2.0.12",
+    "jest": "^28.1.0",
+    "mongodb-memory-server": "^8.5.2",
     "pino-pretty": "^7.6.1",
+    "supertest": "^6.2.3",
+    "ts-jest": "^28.0.2",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.4"
   },
@@ -22,6 +29,7 @@
     "http-status-codes": "^2.2.0",
     "mongoose": "^6.3.3",
     "pino": "^7.11.0",
+    "ts-node": "^10.7.0",
     "zod": "^3.15.1"
   }
 }

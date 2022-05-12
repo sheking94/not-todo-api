@@ -6,16 +6,13 @@ import config from "config";
 import logger from "./utils/logger";
 import router from "./routes";
 import connectToDb from "./utils/connectToDb";
+import createServer from "./utils/server";
 
-const app = express();
-
-app.use(express.json());
-
-app.use(router);
+const app = createServer();
 
 const port = config.get<number>("port");
 
-app.listen(port, () => {
+app.listen(port, async () => {
   logger.info(`Server running at http://localhost:${port}/`);
-  connectToDb();
+  await connectToDb();
 });
