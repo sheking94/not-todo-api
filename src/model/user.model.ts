@@ -8,7 +8,10 @@ import {
   Severity,
 } from "@typegoose/typegoose";
 import argon2 from "argon2";
+
 import logger from "../utils/logger";
+
+export const privateFields = ["password", "__v"];
 
 @pre<User>("save", async function () {
   if (!this.isModified(`password`)) return;

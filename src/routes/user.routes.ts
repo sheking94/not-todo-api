@@ -1,6 +1,10 @@
 import { Router } from "express";
 
-import { createUserHandler } from "../controller/user.controller";
+import {
+  createUserHandler,
+  getCurrentUserHandler,
+} from "../controller/user.controller";
+import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
 import { createUserSchema } from "../schema/user.schema";
 
@@ -11,5 +15,7 @@ router.post(
   validateResource(createUserSchema),
   createUserHandler
 );
+
+router.get("/api/users/me", requireUser, getCurrentUserHandler);
 
 export default router;

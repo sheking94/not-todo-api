@@ -15,7 +15,7 @@ export async function createUserHandler(
 
     return res.status(StatusCodes.CREATED).send("User created successfully.");
   } catch (e: any) {
-    // error 11000 - user with this email/username already exists
+    // error 11000 - user with this email already exists
     if (e.code === 11000)
       return res
         .status(StatusCodes.CONFLICT)
@@ -23,4 +23,8 @@ export async function createUserHandler(
 
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }
+}
+
+export async function getCurrentUserHandler(req: Request, res: Response) {
+  return res.send(res.locals.user);
 }
