@@ -19,7 +19,7 @@ export async function createUserHandler(
     if (e.code === 11000)
       return res
         .status(StatusCodes.CONFLICT)
-        .send("Account with this email or username already exists.");
+        .send("Account with this email already exists.");
 
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
   }

@@ -30,9 +30,6 @@ export class User {
   @prop({ lowercase: true, required: true, unique: true })
   email: string;
 
-  @prop({ lowercase: true, required: true, unique: true })
-  username: string;
-
   @prop({ required: true })
   password: string;
 
