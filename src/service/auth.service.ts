@@ -6,7 +6,7 @@ import SessionModel from "../model/session.model";
 import { privateFields, User } from "../model/user.model";
 import { signJwt } from "../utils/jwt";
 
-export async function createSession({ userId }: { userId: string }) {
+export function createSession({ userId }: { userId: string }) {
   return SessionModel.create({ user: userId });
 }
 

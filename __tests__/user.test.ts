@@ -1,18 +1,10 @@
 import { StatusCodes } from "http-status-codes";
-import mongoose from "mongoose";
 import supertest from "supertest";
 
-import * as UserService from "../service/user.service";
-import createServer from "../utils/server";
+import * as UserService from "../src/service/user.service";
+import createServer from "../src/utils/server";
 
 const app = createServer();
-
-const userId = new mongoose.Types.ObjectId().toString();
-
-const userPayload = {
-  _id: userId,
-  email: "jane.doe@example.com",
-};
 
 const userInput = {
   email: "test@example.com",
