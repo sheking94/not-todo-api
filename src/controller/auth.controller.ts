@@ -22,11 +22,11 @@ export async function createSessionHandler(
 
   const user = await findUserByEmail(email);
 
-  if (!user) return res.send(message);
+  if (!user) return res.status(StatusCodes.UNAUTHORIZED).send(message);
 
   const isValid = await user.validatePassword(password);
 
-  if (!isValid) return res.send(message);
+  if (!isValid) return res.status(StatusCodes.UNAUTHORIZED).send(message);
 
   const accessToken = signAccessToken(user);
   const refreshToken = await signRefreshToken({ userId: user._id });
