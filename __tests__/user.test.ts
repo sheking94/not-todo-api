@@ -1,10 +1,11 @@
+process.env.NODE_ENV = "test";
+
 import chai from "chai";
 import chaiHttp from "chai-http";
 import { StatusCodes } from "http-status-codes";
-import app from "../src/app";
 
-import connectToDb from "../src/utils/connectToDb";
-import createServer from "../src/utils/server";
+import app from "../src/app";
+import UserModel from "../src/model/user.model";
 
 const userInput = {
   email: "test@example.com",
@@ -12,52 +13,161 @@ const userInput = {
   passwordConfirmation: "Password123",
 };
 
-const should = chai.should();
+const expect = chai.expect;
 
 chai.use(chaiHttp);
 
 const requester = chai.request(app).keepOpen();
 
 describe("user", () => {
-  describe("user registration", () => {
+  before((done) => {
+    UserModel.remove({}, (err) => {
+      done();
+    });
+  });
+
+  afterEach((done) => {
+    UserModel.remove({}, (err) => {
+      done();
+    });
+  });
+
+  describe("registration", () => {
     describe("given email, username and password are valid", () => {
-      it("should return CREATED (201) status", (done) => {
-        const uniqueEmail = `test${Math.floor(
-          Math.random() * 1000
-        )}@example.com`;
-        requester
-          .post("/api/users")
-          .send({ ...userInput, email: uniqueEmail })
-          .end((err, res) => {
-            res.should.have.status(StatusCodes.CREATED);
-            done();
-          });
+      it("should return CREATED (201) status and create user", async () => {
+        const res = await requester.post("/api/users").send(userInput);
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.have.lengthOf(1);
+        expect(res).to.have.status(StatusCodes.CREATED);
+        expect(res.text).to.equal("User created successfully.");
       });
     });
 
     describe("given email already exists", () => {
-      it("should return CONFLICT (409) status", (done) => {
-        requester.post("/api/users").send(userInput).end();
-        requester
-          .post("/api/users")
-          .send(userInput)
-          .end((err, res) => {
-            res.should.have.status(StatusCodes.CONFLICT);
-            done();
-          });
+      it("should return CONFLICT (409) status and not create user", async () => {
+        await UserModel.create(userInput);
+
+        const res = await requester.post("/api/users").send(userInput);
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.have.lengthOf(1);
+        expect(res).to.have.status(StatusCodes.CONFLICT);
+        expect(res.text).to.equal("Account with this email already exists.");
       });
     });
 
     describe("given passwords do not match", () => {
-      it("should return BAD REQUEST (400) status", (done) => {
-        const badPassword = "Pasdword123";
-        requester
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const invalidPassword = "Pasdword123";
+
+        const res = await requester
           .post("/api/users")
-          .send({ ...userInput, passwordConfirmation: badPassword })
-          .end((err, res) => {
-            res.should.have.status(StatusCodes.BAD_REQUEST);
-            done();
-          });
+          .send({ ...userInput, passwordConfirmation: invalidPassword });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal("Passwords do not match.");
+      });
+    });
+
+    describe("given email is invalid", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const invalidEmail = "invalidEmail";
+
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, email: invalidEmail });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal("Email is invalid.");
+      });
+    });
+
+    describe("given email is empty", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, email: undefined });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal("Email is required.");
+      });
+    });
+
+    describe("given password is empty", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, password: undefined });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal("Password is required.");
+      });
+    });
+
+    describe("given password confirmation is empty", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, passwordConfirmation: undefined });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal(
+          "Password confirmation is required."
+        );
+      });
+    });
+
+    describe("given password is too short", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const invalidPassword = "qaz";
+
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, password: invalidPassword });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal(
+          "Password must be at least 6 characters long."
+        );
+      });
+    });
+
+    describe("given password is too long", () => {
+      it("should return BAD REQUEST (400) status and not create user", async () => {
+        const invalidPassword = "qwertyuiopasdfghkjlzxcvbnmqwertyuiopaddf";
+
+        const res = await requester
+          .post("/api/users")
+          .send({ ...userInput, password: invalidPassword });
+
+        const createdUsers = await UserModel.find({ email: userInput.email });
+
+        expect(createdUsers).to.be.empty;
+        expect(res).to.have.status(StatusCodes.BAD_REQUEST);
+        expect(res.body[0].message).to.equal(
+          "Password cannot have more than 32 characters."
+        );
       });
     });
 
