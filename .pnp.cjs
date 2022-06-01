@@ -45,6 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/mongoose", "npm:5.11.97"],\
             ["argon2", "npm:0.28.5"],\
             ["chai", "npm:4.3.6"],\
+            ["chai-expected-cookie", "npm:1.0.2"],\
             ["chai-http", "npm:4.3.0"],\
             ["config", "npm:3.3.7"],\
             ["cookie-parser", "npm:1.4.6"],\
@@ -937,6 +938,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["loupe", "npm:2.3.4"],\
             ["pathval", "npm:1.1.1"],\
             ["type-detect", "npm:4.0.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["chai-expected-cookie", [\
+        ["npm:1.0.2", {\
+          "packageLocation": "./.yarn/cache/chai-expected-cookie-npm-1.0.2-2761521e33-76acb4bb05.zip/node_modules/chai-expected-cookie/",\
+          "packageDependencies": [\
+            ["chai-expected-cookie", "npm:1.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -3646,6 +3656,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/mongoose", "npm:5.11.97"],\
             ["argon2", "npm:0.28.5"],\
             ["chai", "npm:4.3.6"],\
+            ["chai-expected-cookie", "npm:1.0.2"],\
             ["chai-http", "npm:4.3.0"],\
             ["config", "npm:3.3.7"],\
             ["cookie-parser", "npm:1.4.6"],\
