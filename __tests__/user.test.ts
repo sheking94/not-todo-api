@@ -20,16 +20,12 @@ chai.use(chaiHttp);
 const requester = chai.request(app).keepOpen();
 
 describe("user", () => {
-  beforeEach((done) => {
-    UserModel.remove({}, (err) => {
-      done();
-    });
+  beforeEach(async () => {
+    await UserModel.deleteMany({});
   });
 
-  after((done) => {
-    UserModel.remove({}, (err) => {
-      done();
-    });
+  after(async () => {
+    await UserModel.deleteMany({});
   });
 
   describe("registration", () => {
