@@ -734,13 +734,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai-expected-cookie@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "chai-expected-cookie@npm:1.0.2"
-  checksum: 76acb4bb05d7713b7d0b3a9c8ceb7daf00149accaaa41f83ee45c75709b563df67918ebb56f0fcdc3d6b607f71ab7dd8d1ccd6d4f9c15d269b74309e06589306
-  languageName: node
-  linkType: hard
-
 "chai-http@npm:*, chai-http@npm:^4.3.0":
   version: 4.3.0
   resolution: "chai-http@npm:4.3.0"
@@ -3133,7 +3126,6 @@ __metadata:
     "@types/mongoose": ^5.11.97
     argon2: ^0.28.5
     chai: ^4.3.6
-    chai-expected-cookie: ^1.0.2
     chai-http: ^4.3.0
     config: ^3.3.7
     cookie-parser: ^1.4.6
