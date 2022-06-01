@@ -1,5 +1,3 @@
-process.env.NODE_ENV = "test";
-
 import chai from "chai";
 import chaiHttp from "chai-http";
 import { StatusCodes } from "http-status-codes";
@@ -13,6 +11,8 @@ const userInput = {
   passwordConfirmation: "Password123",
 };
 
+process.env.NODE_ENV = "test";
+
 const expect = chai.expect;
 
 chai.use(chaiHttp);
@@ -20,13 +20,13 @@ chai.use(chaiHttp);
 const requester = chai.request(app).keepOpen();
 
 describe("user", () => {
-  before((done) => {
+  beforeEach((done) => {
     UserModel.remove({}, (err) => {
       done();
     });
   });
 
-  afterEach((done) => {
+  after((done) => {
     UserModel.remove({}, (err) => {
       done();
     });
@@ -170,37 +170,5 @@ describe("user", () => {
         );
       });
     });
-
-    // describe("given passwords do not match", () => {
-    //   it("should return BAD REQUEST (400) status", async () => {
-    //     const createUserServiceMock = jest
-    //       .spyOn(UserService, "createUser")
-    //       // @ts-ignore
-    //       .mockReturnValueOnce();
-
-    //     const { statusCode } = await supertest(app)
-    //       .post("/api/users")
-    //       .send({ ...userInput, passwordConfirmation: "qweqweqwe" });
-
-    //     expect(statusCode).toBe(StatusCodes.BAD_REQUEST);
-    //     expect(createUserServiceMock).not.toHaveBeenCalledWith();
-    //   });
-    // });
-
-    // describe("given email or username already exist", () => {
-    //   it("should return CONFLICT (409) status", async () => {
-    //     const createUserServiceMock = jest
-    //       .spyOn(UserService, "createUser")
-    //       // @ts-ignore
-    //       .mockRejectedValueOnce({ code: 11000 });
-
-    //     const { statusCode } = await supertest(app)
-    //       .post("/api/users")
-    //       .send(userInput);
-
-    //     expect(statusCode).toBe(StatusCodes.CONFLICT);
-    //     expect(createUserServiceMock).not.toHaveBeenCalledWith();
-    //   });
-    // });
   });
 });
