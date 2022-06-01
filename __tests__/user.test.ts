@@ -29,7 +29,7 @@ describe("user", () => {
   });
 
   describe("registration", () => {
-    describe("given email, username and password are valid", () => {
+    describe("given email and password are valid", () => {
       it("should return CREATED (201) status and create user", async () => {
         const res = await requester.post("/api/users").send(userInput);
 
