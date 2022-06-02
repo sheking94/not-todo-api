@@ -1,11 +1,13 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
+import config from "config";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 
 import app from "../src/app";
 import SessionModel from "../src/model/session.model";
 import UserModel from "../src/model/user.model";
+import { signJwt } from "../src/utils/jwt";
 
 const userInput = {
   email: "test@example.com",
@@ -25,11 +27,10 @@ const requester = chai.request(app).keepOpen();
 describe("auth", () => {
   before(async () => {
     await UserModel.deleteMany({});
-    await UserModel.create({
+    const user = await UserModel.create({
       ...userInput,
       passwordConfirmation: userInput.password,
     });
-    const user = await UserModel.findOne({ email: userInput.email });
     userId = user?._id;
   });
 
@@ -129,5 +130,43 @@ describe("auth", () => {
     });
   });
 
-  describe("refresh session", () => {});
+  describe("refresh session", () => {
+    describe("given refresh token is valid", () => {
+      it("should return OK (200) status and access token in cookie", async () => {
+        const session = await SessionModel.create({ user: userId });
+
+        const refreshToken = signJwt(
+          { session: session._id },
+          "refreshTokenPrivateKey",
+          { expiresIn: config.get<string>("refreshTokenTtl") }
+        );
+
+        const res = await requester
+          .post("/api/sessions/refresh")
+          .set("Cookie", `refreshToken=${refreshToken}`)
+          .send();
+
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.cookie("accessToken");
+        expect(res.text).to.equal("Session refreshed successfully.");
+      });
+    });
+
+    describe("given refresh token is invalid", () => {
+      it("should return UNAUTHORIZED (401) status", async () => {
+        await SessionModel.create({ user: userId });
+
+        const res = await requester
+          .post("/api/sessions/refresh")
+          .set("Cookie", "refreshToken=badrefreshtoken")
+          .send();
+
+        expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
+        expect(res).to.not.have.cookie("accessToken");
+        expect(res.text).to.equal("Could not refresh access token.");
+      });
+    });
+
+    // invalid session test
+  });
 });
