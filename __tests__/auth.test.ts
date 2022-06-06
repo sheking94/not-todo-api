@@ -3,6 +3,7 @@ import chaiHttp from "chai-http";
 import config from "config";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
+import sinon from "sinon";
 
 import app from "../src/app";
 import SessionModel from "../src/model/session.model";
@@ -24,6 +25,8 @@ chai.use(chaiHttp);
 
 const requester = chai.request(app).keepOpen();
 
+let timer: sinon.SinonFakeTimers;
+
 describe("auth", () => {
   before(async () => {
     await UserModel.deleteMany({});
@@ -35,7 +38,16 @@ describe("auth", () => {
   });
 
   beforeEach(async () => {
+    timer = sinon.useFakeTimers({
+      now: Date.now(),
+      // @ts-ignore
+      shouldClearNativeTimers: true,
+    });
     await SessionModel.deleteMany({});
+  });
+
+  afterEach(() => {
+    timer.restore();
   });
 
   after(async () => {
@@ -148,7 +160,30 @@ describe("auth", () => {
 
         expect(res).to.have.status(StatusCodes.OK);
         expect(res).to.have.cookie("accessToken");
-        expect(res.text).to.equal("Session refreshed successfully.");
+        expect(res.text).to.equal("Access token refreshed successfully.");
+      });
+    });
+
+    describe("given refresh token expired", () => {
+      it("should return UNAUTHORIZED (401) status", async () => {
+        const session = await SessionModel.create({ user: userId });
+
+        const refreshToken = signJwt(
+          { session: session._id },
+          "refreshTokenPrivateKey",
+          { expiresIn: config.get<string>("refreshTokenTtl") }
+        );
+
+        timer.tick(config.get<string>("refreshTokenCookieTtl") + 100);
+
+        const res = await requester
+          .post("/api/sessions/refresh")
+          .set("Cookie", `refreshToken=${refreshToken}`)
+          .send();
+
+        expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
+        expect(res).to.not.have.cookie("accessToken");
+        expect(res.text).to.equal("Could not refresh access token.");
       });
     });
 
@@ -167,6 +202,41 @@ describe("auth", () => {
       });
     });
 
-    // invalid session test
+    describe("session is invalid", () => {
+      it("should return UNAUTHORIZED (401) status", async () => {
+        const session = await SessionModel.create({
+          user: userId,
+          valid: false,
+        });
+
+        const refreshToken = signJwt(
+          { session: session._id },
+          "refreshTokenPrivateKey",
+          { expiresIn: config.get<string>("refreshTokenTtl") }
+        );
+
+        const res = await requester
+          .post("/api/sessions/refresh")
+          .set("Cookie", `refreshToken=${refreshToken}`)
+          .send();
+
+        expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
+        expect(res).to.not.have.cookie("accessToken");
+        expect(res.text).to.equal("Could not refresh access token.");
+      });
+    });
+
+    describe("session does not exist", () => {
+      it("should return UNAUTHORIZED (401) status", async () => {
+        const res = await requester
+          .post("/api/sessions/refresh")
+          .set("Cookie", "refreshToken=doesnotreallymatter")
+          .send();
+
+        expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
+        expect(res).to.not.have.cookie("accessToken");
+        expect(res.text).to.equal("Could not refresh access token.");
+      });
+    });
   });
 });
