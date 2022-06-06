@@ -86,5 +86,7 @@ export async function refreshAccessTokenHandler(req: Request, res: Response) {
     secure: false,
   });
 
-  return res.status(StatusCodes.OK).send("Session refreshed successfully.");
+  return res
+    .status(StatusCodes.OK)
+    .send("Access token refreshed successfully.");
 }
