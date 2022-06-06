@@ -26,5 +26,5 @@ export async function createUserHandler(
 }
 
 export async function getCurrentUserHandler(req: Request, res: Response) {
-  return res.send(res.locals.user);
+  return res.status(StatusCodes.OK).send(res.locals.user);
 }
