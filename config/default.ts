@@ -14,7 +14,7 @@ export default {
   accessTokenTtl: "15m",
   refreshTokenTtl: "1y",
   accessTokenCookieTtl: 900000, // 15 min
-  refreshTokenCookieTtl: 3.154e10, // 1 year
+  refreshTokenCookieTtl: 31557600000, // 1 year
   accessTokenPrivateKey: ACCESS_TOKEN_PRIVATE_KEY,
   accessTokenPublicKey: ACCESS_TOKEN_PUBLIC_KEY,
   refreshTokenPrivateKey: REFRESH_TOKEN_PRIVATE_KEY,
