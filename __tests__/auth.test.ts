@@ -23,12 +23,13 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-const requester = chai.request.agent(app);
+let requester: ChaiHttp.Agent;
 
 let timer: sinon.SinonFakeTimers;
 
 describe("auth", () => {
   before(async () => {
+    requester = chai.request.agent(app);
     await UserModel.deleteMany({});
     const user = await UserModel.create({
       ...userInput,
@@ -53,6 +54,7 @@ describe("auth", () => {
   after(async () => {
     await UserModel.deleteMany({});
     await SessionModel.deleteMany({});
+    requester.close();
   });
 
   describe("create session", () => {
