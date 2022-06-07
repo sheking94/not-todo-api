@@ -23,7 +23,7 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-const requester = chai.request(app).keepOpen();
+const requester = chai.request.agent(app);
 
 let timer: sinon.SinonFakeTimers;
 
