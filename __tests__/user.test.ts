@@ -17,15 +17,20 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-const requester = chai.request(app).keepOpen();
+let requester: ChaiHttp.Agent;
 
 describe("user", () => {
+  before(() => {
+    requester = chai.request.agent(app);
+  });
+
   beforeEach(async () => {
     await UserModel.deleteMany({});
   });
 
   after(async () => {
     await UserModel.deleteMany({});
+    requester.close();
   });
 
   describe("registration", () => {
@@ -166,5 +171,47 @@ describe("user", () => {
         );
       });
     });
+  });
+
+  describe("get current user", () => {
+    describe("given access token is valid", () => {
+      it("should return OK (200) status and user object", async () => {
+        const user = await requester.post("/api/users").send(userInput);
+        expect(user).to.have.status(StatusCodes.CREATED);
+
+        const session = await requester
+          .post("/api/sessions")
+          .send({ email: userInput.email, password: userInput.password });
+
+        expect(session).to.have.status(StatusCodes.CREATED);
+        expect(session).to.have.cookie("accessToken");
+
+        const accessToken = session.header["set-cookie"][0]
+          .split(";")[0]
+          .split("=")[1];
+
+        const res = await requester
+          .get("/api/users/me")
+          .set("Cookie", `accessToken=${accessToken}`);
+
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.property("text");
+        expect(res.text).to.be.string;
+
+        const userObject = JSON.parse(res.text);
+
+        expect(userObject).to.have.keys(
+          "_id",
+          "email",
+          "createdAt",
+          "updatedAt",
+          "iat",
+          "exp"
+        );
+      });
+    });
+
+    // access token is expired
+    // access token is invalid
   });
 });
