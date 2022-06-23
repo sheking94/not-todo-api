@@ -11,9 +11,6 @@ import { User } from "./user.model";
   schemaOptions: {
     timestamps: true,
   },
-  // options: {
-  //   allowMixed: Severity.ALLOW,
-  // },
 })
 export class Session {
   @prop({ ref: () => User })
