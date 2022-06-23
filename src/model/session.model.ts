@@ -1,7 +1,20 @@
-import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
+import {
+  getModelForClass,
+  modelOptions,
+  prop,
+  Ref,
+} from "@typegoose/typegoose";
 
 import { User } from "./user.model";
 
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+  },
+  // options: {
+  //   allowMixed: Severity.ALLOW,
+  // },
+})
 export class Session {
   @prop({ ref: () => User })
   user: Ref<User>;
@@ -10,9 +23,5 @@ export class Session {
   valid: boolean;
 }
 
-const SessionModel = getModelForClass(Session, {
-  schemaOptions: {
-    timestamps: true,
-  },
-});
+const SessionModel = getModelForClass(Session);
 export default SessionModel;
