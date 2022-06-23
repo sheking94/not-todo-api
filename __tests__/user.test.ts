@@ -3,6 +3,7 @@ import chaiHttp from "chai-http";
 import { StatusCodes } from "http-status-codes";
 
 import app from "../src/app";
+import SessionModel from "../src/model/session.model";
 import UserModel from "../src/model/user.model";
 
 const userInput = {
@@ -30,6 +31,7 @@ describe("user", () => {
 
   after(async () => {
     await UserModel.deleteMany({});
+    await SessionModel.deleteMany({});
     requester.close();
   });
 
@@ -210,8 +212,5 @@ describe("user", () => {
         );
       });
     });
-
-    // access token is expired
-    // access token is invalid
   });
 });
