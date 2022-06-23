@@ -44,8 +44,6 @@ export class User {
       return false;
     }
   }
-
-  // todos...
 }
 
 const UserModel = getModelForClass(User);
