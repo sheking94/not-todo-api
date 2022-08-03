@@ -17,8 +17,6 @@ const userInput = {
 
 let userId: mongoose.ObjectId;
 
-process.env.NODE_ENV = "test";
-
 const expect = chai.expect;
 
 chai.use(chaiHttp);

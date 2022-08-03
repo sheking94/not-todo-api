@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.2.0",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts",
-    "test": "ts-mocha"
+    "test": "NODE_ENV=test ts-mocha"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

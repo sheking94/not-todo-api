@@ -7,12 +7,10 @@ import SessionModel from "../src/model/session.model";
 import UserModel from "../src/model/user.model";
 
 const userInput = {
-  email: "test@example.com",
+  email: "test1@example.com",
   password: "Password123",
   passwordConfirmation: "Password123",
 };
-
-process.env.NODE_ENV = "test";
 
 const expect = chai.expect;
 
