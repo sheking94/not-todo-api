@@ -8,4 +8,4 @@ export const createToDoSchema = object({
   }),
 });
 
-export type CreateSessionInput = TypeOf<typeof createToDoSchema>["body"];
+export type CreateToDoInput = TypeOf<typeof createToDoSchema>["body"];
