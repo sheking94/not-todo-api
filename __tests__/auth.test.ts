@@ -10,6 +10,12 @@ import SessionModel from "../src/model/session.model";
 import UserModel from "../src/model/user.model";
 import { signJwt } from "../src/utils/jwt";
 
+const userData = {
+  email: "test1@example.com",
+  password: "Password123",
+  passwordConfirmation: "Password123",
+};
+
 const userInput = {
   email: "test@example.com",
   password: "Password123",
@@ -236,6 +242,44 @@ describe("auth", () => {
         expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
         expect(res).to.not.have.cookie("accessToken");
         expect(res.text).to.equal("Could not refresh access token.");
+      });
+    });
+  });
+
+  describe("delete session", () => {
+    describe("given refresh token is valid", () => {
+      it("should return OK (200) status and delete accessToken and refreshToken cookies", async () => {
+        const user = await requester.post("/api/users").send(userData);
+        expect(user).to.have.status(StatusCodes.CREATED);
+
+        const session = await requester
+          .post("/api/sessions")
+          .send({ email: userData.email, password: userData.password });
+
+        expect(session).to.have.status(StatusCodes.CREATED);
+        expect(session).to.have.cookie("accessToken");
+        expect(session).to.have.cookie("refreshToken");
+
+        const accessToken = session.header["set-cookie"][0]
+          .split(";")[0]
+          .split("=")[1];
+
+        const refreshToken = session.header["set-cookie"][1]
+          .split(";")[0]
+          .split("=")[1];
+
+        const res = await requester
+          .delete("/api/sessions/logout")
+          .set("Cookie", `accessToken=${accessToken}`)
+          .set("Cookie", `refreshToken=${refreshToken}`)
+          .send();
+
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.not.have.cookie("accessToken");
+        expect(res).to.not.have.cookie("refreshToken");
+        expect(res).to.have.property("text");
+        expect(res.text).to.be.string;
+        expect(res.text).to.equal("Successfully logged out.");
       });
     });
   });
