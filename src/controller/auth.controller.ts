@@ -90,3 +90,25 @@ export async function refreshAccessTokenHandler(req: Request, res: Response) {
     .status(StatusCodes.OK)
     .send("Access token refreshed successfully.");
 }
+
+export async function deleteSessionHandler(req: Request, res: Response) {
+  const message = "Could not log out.";
+
+  const refreshToken = req.cookies.refreshToken;
+
+  const decoded = verifyJwt<{ session: string }>(
+    refreshToken,
+    "refreshTokenPublicKey"
+  );
+
+  if (!decoded) return res.status(StatusCodes.UNAUTHORIZED).send(message);
+
+  const session = await findSessionById(decoded.session);
+
+  if (!session) return res.status(StatusCodes.NOT_FOUND).send(message);
+
+  res.clearCookie("accessToken", { path: "/" });
+  res.clearCookie("refreshToken", { path: "/" });
+
+  return res.status(StatusCodes.OK).send("Successfully logged out.");
+}

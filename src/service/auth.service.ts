@@ -35,3 +35,7 @@ export async function signRefreshToken({ userId }: { userId: string }) {
 export async function findSessionById(id: string) {
   return SessionModel.findById(id);
 }
+
+export async function deleteSessionById(id: string) {
+  return SessionModel.deleteOne({ id });
+}
