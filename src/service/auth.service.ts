@@ -32,10 +32,10 @@ export async function signRefreshToken({ userId }: { userId: string }) {
   return refreshToken;
 }
 
-export async function findSessionById(id: string) {
+export function findSessionById(id: string) {
   return SessionModel.findById(id);
 }
 
-export async function deleteSessionById(id: string) {
+export function deleteSessionById(id: string) {
   return SessionModel.deleteOne({ id });
 }
