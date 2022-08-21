@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 
 import { CreateToDoInput, UpdateToDoInput } from "../schema/todo.schema";
-import { createToDo, updateToDo } from "../service/todo.service";
+import { createToDo, findToDoById, updateToDo } from "../service/todo.service";
 
 export async function createToDoHandler(
   req: Request<{}, {}, CreateToDoInput>,
@@ -12,16 +12,12 @@ export async function createToDoHandler(
   const description = req.body.description;
   const userId = res.locals.user._id;
 
-  try {
-    const todo = await createToDo({ userId, description });
+  const todo = await createToDo({ userId, description });
 
-    return res.status(StatusCodes.CREATED).send({
-      message: "ToDo created successfully.",
-      todo: omit(todo.toJSON(), ["__v"]),
-    });
-  } catch (e: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
-  }
+  return res.status(StatusCodes.CREATED).send({
+    message: "ToDo created successfully.",
+    todo: omit(todo.toJSON(), ["__v"]),
+  });
 }
 
 export async function updateToDoHandler(
@@ -33,14 +29,22 @@ export async function updateToDoHandler(
   const done = req.body.done;
   const userId = res.locals.user._id;
 
-  try {
-    const todo = await updateToDo({ userId, toDoId, description, done });
+  // find ToDo, check if exists
+  const toDo = await findToDoById(toDoId);
 
-    return res.status(StatusCodes.OK).send({
-      message: "ToDo updated successfully.",
-      todo: omit(todo.toJSON(), ["__v"]),
-    });
-  } catch (e: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
-  }
+  if (!toDo) return res.status(StatusCodes.NOT_FOUND).send("ToDo not found.");
+
+  // check if todo's userId matches current user id
+  if (toDo.user && toDo.user.toString() !== userId.toString())
+    return res
+      .status(StatusCodes.FORBIDDEN)
+      .send("No rights to update this ToDo.");
+
+  // update ToDo
+  const toDoUpdated = await updateToDo({ toDoId, description, done });
+
+  return res.status(StatusCodes.OK).send({
+    message: "ToDo updated successfully.",
+    todo: omit(toDoUpdated!.toJSON(), ["__v"]),
+  });
 }

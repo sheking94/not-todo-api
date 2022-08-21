@@ -10,6 +10,26 @@ export function createToDo({
   return ToDoModel.create({ user: userId, description });
 }
 
+export function updateToDo({
+  toDoId,
+  description,
+  done,
+}: {
+  toDoId: string;
+  description: string;
+  done: boolean;
+}) {
+  return ToDoModel.findByIdAndUpdate(
+    toDoId,
+    { description, done },
+    { new: true }
+  );
+}
+
 export function findToDosByUserId(userId: string) {
   return ToDoModel.find({ user: userId });
+}
+
+export function findToDoById(toDoId: string) {
+  return ToDoModel.findById(toDoId);
 }
