@@ -13,8 +13,13 @@ const userData = {
   passwordConfirmation: "Password123",
 };
 
-const userInput = {
+const userInputCreateToDo = {
   description: "This is a ToDo.",
+};
+
+const userInputUpdateToDo = {
+  description: "This is an updated ToDo.",
+  done: true,
 };
 
 const expect = chai.expect;
@@ -23,7 +28,7 @@ chai.use(chaiHttp);
 
 let requester: ChaiHttp.Agent;
 
-describe("user", () => {
+describe("toDo", () => {
   before(() => {
     requester = chai.request.agent(app);
   });
@@ -59,7 +64,7 @@ describe("user", () => {
         const res = await requester
           .post("/api/todos")
           .set("Cookie", `accessToken=${accessToken}`)
-          .send(userInput);
+          .send(userInputCreateToDo);
 
         expect(res).to.have.status(StatusCodes.CREATED);
         expect(res).to.have.property("text");
@@ -76,6 +81,75 @@ describe("user", () => {
           "_id",
           "createdAt",
           "updatedAt"
+        );
+      });
+    });
+  });
+  describe("update ToDo", () => {
+    describe("given ToDo belongs to the current user", () => {
+      it("should return OK (200) status and todo object", async () => {
+        const user = await requester.post("/api/users").send(userData);
+        expect(user).to.have.status(StatusCodes.CREATED);
+
+        const session = await requester
+          .post("/api/sessions")
+          .send({ email: userData.email, password: userData.password });
+
+        expect(session).to.have.status(StatusCodes.CREATED);
+        expect(session).to.have.cookie("accessToken");
+
+        const accessToken = session.header["set-cookie"][0]
+          .split(";")[0]
+          .split("=")[1];
+
+        const toDo = await requester
+          .post("/api/todos")
+          .set("Cookie", `accessToken=${accessToken}`)
+          .send(userInputCreateToDo);
+
+        expect(toDo).to.have.status(StatusCodes.CREATED);
+        expect(toDo).to.have.property("text");
+        expect(toDo.text).to.be.string;
+
+        const toDoObject = JSON.parse(toDo.text);
+
+        expect(toDoObject).to.have.keys("message", "todo");
+        expect(toDoObject.todo).to.have.keys(
+          "user",
+          "description",
+          "done",
+          "_id",
+          "createdAt",
+          "updatedAt"
+        );
+
+        const toDoId = toDoObject.todo._id;
+
+        const res = await requester
+          .put(`/api/todos/${toDoId}`)
+          .set("Cookie", `accessToken=${accessToken}`)
+          .send(userInputUpdateToDo);
+
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.property("text");
+        expect(res.text).to.be.string;
+
+        const updatedToDoObject = JSON.parse(res.text);
+
+        expect(updatedToDoObject).to.have.keys("message", "todo");
+        expect(updatedToDoObject.message).to.equal(
+          "ToDo updated successfully."
+        );
+        expect(updatedToDoObject.todo).to.have.keys(
+          "user",
+          "description",
+          "done",
+          "_id",
+          "createdAt",
+          "updatedAt"
+        );
+        expect(updatedToDoObject.todo.description).to.equal(
+          "This is an updated ToDo."
         );
       });
     });
