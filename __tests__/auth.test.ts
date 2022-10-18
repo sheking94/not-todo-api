@@ -150,7 +150,7 @@ describe("auth", () => {
 
   describe("refresh session", () => {
     describe("given refresh token is valid", () => {
-      it("should return OK (200) status and access token in cookie", async () => {
+      it("should return CREATED (201) status and access token and refresh token in cookies", async () => {
         const session = await SessionModel.create({ user: userId });
 
         const refreshToken = signJwt(
@@ -164,9 +164,10 @@ describe("auth", () => {
           .set("Cookie", `refreshToken=${refreshToken}`)
           .send();
 
-        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.status(StatusCodes.CREATED);
         expect(res).to.have.cookie("accessToken");
-        expect(res.text).to.equal("Access token refreshed successfully.");
+        expect(res).to.have.cookie("refreshToken");
+        expect(res.text).to.equal("Session created successfully.");
       });
     });
 
@@ -189,7 +190,8 @@ describe("auth", () => {
 
         expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
         expect(res).to.not.have.cookie("accessToken");
-        expect(res.text).to.equal("Could not refresh access token.");
+        expect(res).to.not.have.cookie("refreshToken");
+        expect(res.text).to.equal("Could not refresh session.");
       });
     });
 
@@ -204,7 +206,8 @@ describe("auth", () => {
 
         expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
         expect(res).to.not.have.cookie("accessToken");
-        expect(res.text).to.equal("Could not refresh access token.");
+        expect(res).to.not.have.cookie("refreshToken");
+        expect(res.text).to.equal("Could not refresh session.");
       });
     });
 
@@ -228,7 +231,8 @@ describe("auth", () => {
 
         expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
         expect(res).to.not.have.cookie("accessToken");
-        expect(res.text).to.equal("Could not refresh access token.");
+        expect(res).to.not.have.cookie("refreshToken");
+        expect(res.text).to.equal("Could not refresh session.");
       });
     });
 
@@ -241,7 +245,8 @@ describe("auth", () => {
 
         expect(res).to.have.status(StatusCodes.UNAUTHORIZED);
         expect(res).to.not.have.cookie("accessToken");
-        expect(res.text).to.equal("Could not refresh access token.");
+        expect(res).to.not.have.cookie("refreshToken");
+        expect(res.text).to.equal("Could not refresh session.");
       });
     });
   });
