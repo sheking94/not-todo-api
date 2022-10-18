@@ -3,7 +3,7 @@ import { request, Router } from "express";
 import {
   createSessionHandler,
   deleteSessionHandler,
-  refreshAccessTokenHandler,
+  refreshSessionHandler,
 } from "../controller/auth.controller";
 import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
@@ -17,6 +17,6 @@ router.post(
   createSessionHandler
 );
 router.delete("/api/sessions/logout", deleteSessionHandler);
-router.post("/api/sessions/refresh", refreshAccessTokenHandler);
+router.post("/api/sessions/refresh", refreshSessionHandler);
 
 export default router;

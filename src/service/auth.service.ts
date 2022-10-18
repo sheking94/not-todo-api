@@ -6,7 +6,7 @@ import SessionModel from "../model/session.model";
 import { privateFields, User } from "../model/user.model";
 import { signJwt } from "../utils/jwt";
 
-export function createSession({ userId }: { userId: string }) {
+export function createSession(userId: string) {
   return SessionModel.create({ user: userId });
 }
 
@@ -20,8 +20,8 @@ export function signAccessToken(user: DocumentType<User>) {
   return accessToken;
 }
 
-export async function signRefreshToken({ userId }: { userId: string }) {
-  const session = await createSession({ userId });
+export async function signRefreshToken(userId: string) {
+  const session = await createSession(userId);
 
   const refreshToken = signJwt(
     { session: session._id },
