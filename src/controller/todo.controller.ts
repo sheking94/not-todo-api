@@ -56,10 +56,16 @@ export async function updateToDoHandler(
       .send("No rights to update this ToDo.");
 
   // update ToDo
-  const toDoUpdated = await updateToDo({ toDoId, description, done });
+  try {
+    const toDoUpdated = await updateToDo({ toDoId, description, done });
 
-  return res.status(StatusCodes.OK).send({
-    message: "ToDo updated successfully.",
-    todo: toDoUpdated,
-  });
+    return res.status(StatusCodes.OK).send({
+      message: "ToDo updated successfully.",
+      todo: toDoUpdated,
+    });
+  } catch (e: any) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "Cannot update ToDo.",
+    });
+  }
 }
