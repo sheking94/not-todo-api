@@ -245,4 +245,36 @@ describe("toDo", () => {
       });
     });
   });
+  describe("get ToDos for current user", () => {
+    describe("user is logged in", () => {
+      it("should return OK (200) status and an object with todos array", async () => {
+        const user = await requester.post("/api/users").send(user1Data);
+        expect(user).to.have.status(StatusCodes.CREATED);
+
+        const session = await requester
+          .post("/api/sessions")
+          .send({ email: user1Data.email, password: user1Data.password });
+
+        expect(session).to.have.status(StatusCodes.CREATED);
+        expect(session).to.have.cookie("accessToken");
+
+        const accessToken = session.header["set-cookie"][0]
+          .split(";")[0]
+          .split("=")[1];
+
+        const res = await requester
+          .get("/api/todos")
+          .set("Cookie", `accessToken=${accessToken}`);
+
+        console.log(res.text);
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.property("text");
+
+        const toDos = JSON.parse(res.text);
+
+        expect(toDos).to.have.keys("todos");
+        expect(toDos.todos).to.be.an("array");
+      });
+    });
+  });
 });
