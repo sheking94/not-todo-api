@@ -4,12 +4,14 @@ import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
 import {
   createToDoHandler,
+  getToDosHandler,
   updateToDoHandler,
 } from "../controller/todo.controller";
 import { createToDoSchema, updateToDoSchema } from "../schema/todo.schema";
 
 const router = Router();
 
+router.get("/api/todos", requireUser, getToDosHandler);
 router.post(
   "/api/todos",
   requireUser,

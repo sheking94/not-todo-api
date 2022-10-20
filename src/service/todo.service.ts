@@ -27,7 +27,7 @@ export function updateToDo({
 }
 
 export function findToDosByUserId(userId: string) {
-  return ToDoModel.find({ user: userId });
+  return ToDoModel.find({ user: userId }, "-__v");
 }
 
 export function findToDoById(toDoId: string) {

@@ -3,7 +3,12 @@ import { StatusCodes } from "http-status-codes";
 import { omit } from "lodash";
 
 import { CreateToDoInput, UpdateToDoInput } from "../schema/todo.schema";
-import { createToDo, findToDoById, updateToDo } from "../service/todo.service";
+import {
+  createToDo,
+  findToDoById,
+  findToDosByUserId,
+  updateToDo,
+} from "../service/todo.service";
 
 export async function createToDoHandler(
   req: Request<{}, {}, CreateToDoInput>,
@@ -12,11 +17,21 @@ export async function createToDoHandler(
   const description = req.body.description;
   const userId = res.locals.user._id;
 
-  const todo = await createToDo({ userId, description });
+  const toDo = await createToDo({ userId, description });
 
   return res.status(StatusCodes.CREATED).send({
     message: "ToDo created successfully.",
-    todo: omit(todo.toJSON(), ["__v"]),
+    todo: omit(toDo.toJSON(), ["__v"]),
+  });
+}
+
+export async function getToDosHandler(req: Request, res: Response) {
+  const userId = res.locals.user._id;
+
+  const toDos = await findToDosByUserId(userId);
+
+  return res.status(StatusCodes.OK).send({
+    toDos,
   });
 }
 
@@ -34,7 +49,7 @@ export async function updateToDoHandler(
 
   if (!toDo) return res.status(StatusCodes.NOT_FOUND).send("ToDo not found.");
 
-  // check if todo's userId matches current user id
+  // check if todo's userId matches current user's id
   if (toDo.user && toDo.user.toString() !== userId.toString())
     return res
       .status(StatusCodes.FORBIDDEN)
