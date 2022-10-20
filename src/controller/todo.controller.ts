@@ -21,7 +21,7 @@ export async function createToDoHandler(
 
   return res.status(StatusCodes.CREATED).send({
     message: "ToDo created successfully.",
-    todo: omit(toDo.toJSON(), ["__v"]),
+    todo: toDo,
   });
 }
 
@@ -31,7 +31,7 @@ export async function getToDosHandler(req: Request, res: Response) {
   const toDos = await findToDosByUserId(userId);
 
   return res.status(StatusCodes.OK).send({
-    toDos,
+    todos: toDos,
   });
 }
 
@@ -60,6 +60,6 @@ export async function updateToDoHandler(
 
   return res.status(StatusCodes.OK).send({
     message: "ToDo updated successfully.",
-    todo: omit(toDoUpdated!.toJSON(), ["__v"]),
+    todo: toDoUpdated,
   });
 }

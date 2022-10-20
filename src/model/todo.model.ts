@@ -10,6 +10,7 @@ import { User } from "./user.model";
 @modelOptions({
   schemaOptions: {
     timestamps: true,
+    versionKey: false,
   },
 })
 export class ToDo {
