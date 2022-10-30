@@ -266,7 +266,6 @@ describe("toDo", () => {
           .get("/api/todos")
           .set("Cookie", `accessToken=${accessToken}`);
 
-        console.log(res.text);
         expect(res).to.have.status(StatusCodes.OK);
         expect(res).to.have.property("text");
 
@@ -274,6 +273,60 @@ describe("toDo", () => {
 
         expect(toDos).to.have.keys("todos");
         expect(toDos.todos).to.be.an("array");
+      });
+    });
+  });
+  describe("delete ToDo", () => {
+    describe("given ToDo belongs to the current user", () => {
+      it("should return OK (200) status and delete ToDo from DB", async () => {
+        const user = await requester.post("/api/users").send(user1Data);
+        expect(user).to.have.status(StatusCodes.CREATED);
+
+        const session = await requester
+          .post("/api/sessions")
+          .send({ email: user1Data.email, password: user1Data.password });
+
+        expect(session).to.have.status(StatusCodes.CREATED);
+        expect(session).to.have.cookie("accessToken");
+
+        const accessToken = session.header["set-cookie"][0]
+          .split(";")[0]
+          .split("=")[1];
+
+        const toDo = await requester
+          .post("/api/todos")
+          .set("Cookie", `accessToken=${accessToken}`)
+          .send(userInputCreateToDo);
+
+        expect(toDo).to.have.status(StatusCodes.CREATED);
+        expect(toDo).to.have.property("text");
+        expect(toDo.text).to.be.string;
+
+        const toDoObject = JSON.parse(toDo.text);
+
+        expect(toDoObject).to.have.keys("message", "todo");
+        expect(toDoObject.todo).to.have.keys(
+          "user",
+          "description",
+          "done",
+          "_id",
+          "createdAt",
+          "updatedAt"
+        );
+
+        const toDoId = toDoObject.todo._id;
+
+        const res = await requester
+          .delete(`/api/todos/${toDoId}`)
+          .set("Cookie", `accessToken=${accessToken}`);
+
+        expect(res).to.have.status(StatusCodes.OK);
+        expect(res).to.have.property("text");
+        expect(res.text).to.be.string;
+        expect(res.text).to.equal("ToDo deleted successfully.");
+
+        const toDoFound = await ToDoModel.findById(toDoId);
+        expect(toDoFound).to.be.null;
       });
     });
   });
