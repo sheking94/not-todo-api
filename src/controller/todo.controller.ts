@@ -5,6 +5,7 @@ import { omit } from "lodash";
 import { CreateToDoInput, UpdateToDoInput } from "../schema/todo.schema";
 import {
   createToDo,
+  deleteToDo,
   findToDoById,
   findToDosByUserId,
   updateToDo,
@@ -64,8 +65,38 @@ export async function updateToDoHandler(
       todo: toDoUpdated,
     });
   } catch (e: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "Cannot update ToDo.",
-    });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Cannot update ToDo.");
+  }
+}
+
+export async function deleteToDoHandler(
+  req: Request<{ todoid: string }>,
+  res: Response
+) {
+  const toDoId = req.params.todoid;
+  const userId = res.locals.user._id;
+
+  // find ToDo, check if exists
+  const toDo = await findToDoById(toDoId);
+
+  if (!toDo) return res.status(StatusCodes.NOT_FOUND).send("ToDo not found.");
+
+  // check if todo's userId matches current user's id
+  if (toDo.user && toDo.user.toString() !== userId.toString())
+    return res
+      .status(StatusCodes.FORBIDDEN)
+      .send("No rights to delete this ToDo.");
+
+  // delete ToDo
+  try {
+    await deleteToDo(toDoId);
+
+    return res.status(StatusCodes.OK).send("ToDo deleted successfully.");
+  } catch (e: any) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Cannot delete ToDo.");
   }
 }

@@ -4,6 +4,7 @@ import requireUser from "../middleware/requireUser";
 import validateResource from "../middleware/validateResource";
 import {
   createToDoHandler,
+  deleteToDoHandler,
   getToDosHandler,
   updateToDoHandler,
 } from "../controller/todo.controller";
@@ -24,6 +25,7 @@ router.put(
   validateResource(updateToDoSchema),
   updateToDoHandler
 );
+router.delete("/api/todos/:todoid", requireUser, deleteToDoHandler);
 
 // router.get("/api/todos", requireUser, getCurrentUserToDosHandler);
 

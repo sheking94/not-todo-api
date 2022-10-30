@@ -33,3 +33,7 @@ export function findToDosByUserId(userId: string) {
 export function findToDoById(toDoId: string) {
   return ToDoModel.findById(toDoId);
 }
+
+export function deleteToDo(toDoId: string) {
+  return ToDoModel.findByIdAndDelete(toDoId);
+}
